@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <nav id="navbar">
+      <header>Diseño de una interfaz login a través de WPF</header>
+      <ul>
+        <li><a class="nav-link" href="#Introduccion">Introduccion</a></li>
+        <li>
+          <a class="nav-link" href="#Personalizacion_del_boton"
+            >Personalizacion del boton</a
+          >
+        </li>
+        <li>
+          <a class="nav-link" href="#Personalizacion_del_textbox"
+            >Personalizacion del textbox</a
+          >
+        </li>
+        <li><a class="nav-link" href="#Funcionalidad_del_LoginViewModel">Funcionalidad del LoginViewModel</a></li>
+        <li><a class="nav-link" href="#Funcion_para_la_validacion">Funcion para la validacion</a></li>
+        <li><a class="nav-link" href="#Referencia">Referencia</a></li>
+      </ul>
+    </nav>
+    <main id="main-doc">
+      <section class="main-section" id="Introduccion">
+        <header>Introduccion</header>
+        <article>
+          <p>Del prototipo mockup correspondiente a la GUI del Login se obtuvo el 
+                    siguiente diseño en WPF. Vea la <strong>Figura 1</strong>. Algo que falta destacar 
+                    con respecto a cómo funciona el diseño de las interfaces graficas 
+                    en WPF; es la facilidad obtener diseños modernos, cuando en Windows 
+                    Forms resulta difícil de conseguir.</p>
+                <div class="card-img"><img src="prototipo.png" alt="prototipo"></div>
+                <p>Esa facilidad se traduce a la personalización de los controles de Windows 
+                    Forms por medio del lenguaje xaml, donde podemos aplicar estilos de 
+                    redondeados, estilos de apariencia, etc. Los comandos correspondientes 
+                    a la validación de usuario y contraseña se hacen por medio del 
+                    DataBinding que se implementó en WPF.</p>
+        </article>
+      </section>
+      <section class="main-section" id="Personalizacion_del_boton">
+        <header>Personalizacion del boton</header>
+        <article>
+         <p>El button control tiene un estilo predeterminado, y es un estilo de Windows
+                     Forms, para cambiar la apariencia del botón se necesita crear un diccionario
+                      de recursos, y aplicar los cambios correspondientes para que así nuestro 
+                      control tenga un nuevo estilo, en este caso un estilo moderno.</p>
+                <code>Aqui va el codigo</code>
+        </article>
+      </section>
+      <section class="main-section" id="Personalizacion_del_textbox">
+        <header>Personalizacion del textbox</header>
+            <article><p>El cambio que se aplicó al textbox fue colocar un icono en la parte izquierda 
+                del control, con la finalidad de crear un sentido de percepción para el usuario.</p>
+                <code>Aqui va el codigo</code>
+
+            </article>
+      </section>
+      <section class="main-section" id="Funcionalidad_del_LoginViewModel">
+        <header>Funcionalidad del LoginViewModel
+            </header>
+            <article>
+                <p>Dentro del paquete viewmodel se crea una clase por nombre LoginViewModel, 
+                    el cual se encargará de proporcionar los datos a la vista. A su vez, esta
+                     clase hereda de una clase padre el evento onPropertyChanged, además de que
+                      a través de la composición la clase ViewModelCommand se implementa en la 
+                      clase LoginViewModel.</p>
+                <pre><code>
+                    public class LoginViewModel:ViewModelBase
+                    {
+                        //Declarations fields of login
+                        UserModel user = new UserModel();
+                        private string _username;
+                        private SecureString _password;
+                        private string _errorMessage;
+                        private bool _IsViewVisible;
+                        private IUserRepository userRepository;
+                        private ViewModelBase _currentChild;
+                
+                        public string Username { 
+                            get { return _username; }
+                            set { 
+                                _username = value;
+                                OnPropertyChanged(nameof(Username));
+                            } 
+                        }
+                        public SecureString Password {
+                            get { return _password; }
+                            set { 
+                                _password = value;
+                                OnPropertyChanged(nameof(Password));
+                            } 
+                        }
+                        public string ErrorMessage {
+                            get { return _errorMessage; }
+                            set
+                            {
+                                _errorMessage = value;
+                                OnPropertyChanged(nameof(ErrorMessage));
+                            }
+                        }
+                        public bool IsViewVisible {
+                            get
+                            {
+                                return _IsViewVisible;
+                            }
+                            set
+                            {
+                                _IsViewVisible = value;
+                                OnPropertyChanged(nameof(IsViewVisible));
+                            } 
+                        }
+                        public ViewModelBase CurrentChild {
+                            get { return _currentChild; }
+                            set
+                            {
+                                _currentChild = value;
+                                OnPropertyChanged(nameof(CurrentChild));
+                            }
+                        }
+                        //Commands
+                        public ICommand LoginCommand { get; }
+                        public ICommand RecoverPasswordCommand { get; }
+                        public ICommand ShowPasswordCommand { get; }
+                        public ICommand RememberPasswordCommand { get; }
+                        public ICommand AssistantCommand { get; }
+                        
+                
+                        //Constructor
+                        public LoginViewModel()
+                        {
+                            userRepository = new UserRepository();
+                            LoginCommand = new ViewModelCommand(ExecuteLoginCommand, CanExecuteLoginCommand);
+                            AssistantCommand = new ViewModelCommand(ExecuteAssistantCommand);
+                            RecoverPasswordCommand = new ViewModelCommand(ExecuteRecoverPassCommand);
+                            ShowPasswordCommand = new ViewModelCommand(ExecuteShowPassCommand);
+                        }
+                    }
+                </code>
+                </pre>
+            </article>
+      </section>
+      <section class="main-section" id="Funcion_para_la_validacion">
+       <header>Funcion para la validacion</header>
+            <article>
+                <p>El método onPropertyChanged 
+                    <ul>
+                        <li>notifica los cambios que se realicen a las propiedades
+                     de la clase LoginViewModel. </li>
+                    </ul></p>
+                  <p>Además de que las propiedades están directamente 
+                     relacionadas con la parte visible de la interfaz.</p>  
+                <pre><code> public void OnPropertyChanged(string propertyName)
+                    {
+                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                    }</code></pre>
+                <p>En el constructor de la clase se crean los métodos: 
+                    <ul> <li>CanExecuteLoginCommand</li> <li>ExecuteLoginCommand</li> </ul></p> 
+                    <p>Puesto que antes de enviar al usuario la ventana 
+                     principal, se realiza una evaluación de los datos proporcionados en el 
+                     campo usuario y contraseña, dichos métodos se implementan de la clase 
+                     ViewModelCommands, donde el evento CanExecuteChanged informa sobre 
+                     los cambios que están ocurriendo</p> . 
+                <p>El método CanExecuteLoginCommand hace una validación: </p>
+                   <ul><li>El usuario debe tener más de tres caracteres, igualmente para la contraseña</li></ul> 
+                   <p> En caso de ser un campo vacío, se enviara el mensaje de error, por medio del atributo ErrorMessage. </p>
+                <p>En el método ExecuteLoginCommand se validan los datos del usuario, verificando: </p>
+                    <ul><li>si existen en la base de datos.</li></ul> 
+                    <p> De lo contrario notificara el error a través de ErrorMessage. </p>
+                <pre><code>private bool CanExecuteLoginCommand(object obj)
+                    {
+                        bool validData;
+                        if(string.IsNullOrWhiteSpace(Username) || Username.Length3 ||
+                            Password = null || Password.Length3)
+                            validData = false;
+                        else validData = true;
+                        return validData;
+                    }
+            
+                    private void ExecuteLoginCommand(object obj)
+                    {
+                        
+                        
+                        var IsLogin = userRepository.AuthenticateUser(new System.Net.NetworkCredential(Username, Password));
+                        if (IsLogin)
+                        {
+                            Thread.CurrentPrincipal = new GenericPrincipal(new GenericIdentity(Username), null);
+                            IsViewVisible = false;
+                        }
+                        else
+                        {
+                            ErrorMessage = "Username or Password incorrects";
+                        }
+                    }</code></pre>
+                <p>Cuando un empleado de cualquier área de la empresa se disponga a ejecutar 
+                    por primera vez el software, no tendrá usuario y contraseña; lo cual se 
+                    hace intencionalmente, para que así el empleado ejecute la función de 
+                    crear usuario, una vez realizado el proceso de captura de datos, el usuario 
+                    podrá proporcionar su usuario y contraseña en la interfaz. </p>
+            </article>
+      
+       
+      </section>
+ 
+      <section class="main-section" id="Referencia">
+        <header>Referencia</header>
+        <article>
+          <ul>
+            <li>
+              Toda la documentacion se encuentra en:
+              <a
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide"
+                target="_blank"
+                >MDN</a
+              >
+            </li>
+          </ul>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
